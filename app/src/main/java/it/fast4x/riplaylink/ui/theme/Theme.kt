@@ -51,7 +51,7 @@ fun RiPlayLinkTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = DarkColorScheme, //colorScheme,
         typography = Typography,
         content = content
     )

@@ -10,12 +10,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import it.fast4x.riplaylink.service.CommandService
+import it.fast4x.riplaylink.ui.Player
 import it.fast4x.riplaylink.ui.theme.RiPlayLinkTheme
+import it.fast4x.riplaylink.service.registerNsdService
 
 class MainActivity : AppCompatActivity() {
+
+    //private lateinit var commandService: CommandService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        registerNsdService()
+//        commandService = CommandService(this)
+//        commandService.start()
         setContent {
             RiPlayLinkTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -23,6 +32,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        commandService.stop()
+        registerNsdService(unRegister = true)
     }
 }
 

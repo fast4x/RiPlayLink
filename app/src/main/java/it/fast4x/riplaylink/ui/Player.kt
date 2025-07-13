@@ -1,4 +1,4 @@
-package it.fast4x.riplaylink
+package it.fast4x.riplaylink.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -34,6 +33,11 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import it.fast4x.riplaylink.MainActivity
+import it.fast4x.riplaylink.R
+import it.fast4x.riplaylink.getLastYTVideoId
+import it.fast4x.riplaylink.getLastYTVideoSeconds
+import it.fast4x.riplaylink.service.CommandService
 import it.fast4x.riplaylink.ui.customui.CustomDefaultPlayerUiController
 import it.fast4x.riplaylink.utils.isLandscape
 import it.fast4x.riplaylink.utils.lastVideoIdKey
@@ -43,7 +47,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun Player(
-    innerPadding: PaddingValues,
+    innerPadding: PaddingValues
 ) {
 
     val context = LocalContext.current
@@ -59,6 +63,27 @@ fun Player(
     var mediaId by remember { mutableStateOf("Tmod0giDy0o") }
     var lastYTVideoId by rememberPreference(key = lastVideoIdKey, defaultValue = "")
     var lastYTVideoSeconds by rememberPreference(key = lastVideoSecondsKey, defaultValue = 0f)
+
+    val commandService = remember { CommandService(
+        context as MainActivity,
+        onCommandLoad = { id, position ->
+            println("CommandService onCommandPlay $id $position")
+            player.value?.loadVideo(id, position)
+        },
+        onCommandPlay = {
+            println("CommandService onCommandPause")
+            player.value?.play()
+        },
+        onCommandPause = {
+            println("CommandService onCommandPause")
+            player.value?.pause()
+        }
+    ) }
+
+    LaunchedEffect(Unit) {
+        commandService.start()
+    }
+    
 
     var showControls by remember { mutableStateOf(true) }
     LaunchedEffect(showControls) {
