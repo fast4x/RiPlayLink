@@ -2,20 +2,21 @@ package it.fast4x.riplaylink.service
 
 import android.app.Activity
 import android.content.Context
-import android.net.Uri
 import android.net.wifi.WifiManager
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
-import java.io.BufferedReader
+import io.ktor.network.selector.SelectorManager
+import io.ktor.network.sockets.aSocket
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.network.sockets.openWriteChannel
+import io.ktor.utils.io.readUTF8Line
+import io.ktor.utils.io.writeStringUtf8
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
-import java.io.InputStreamReader
 import java.net.InetAddress
-import java.net.ServerSocket
-import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import androidx.core.net.toUri
 
 class CommandService(
     private val activity: Activity,
@@ -34,6 +35,8 @@ class CommandService(
         onCommandPause()
     }
 
+    fun String.cleanParam(): String? = this.replace("HTTP/1.1", "").replace(" ", "")
+
     fun stop() {
         isServiceSunning = false
         try {
@@ -45,80 +48,53 @@ class CommandService(
         }
     }
 
-    @Synchronized
-    fun start() {
+    suspend fun start() {
         isServiceSunning = true
-        val serviceThread = Thread(Runnable {
-            var socket: Socket
-            var responseThread: ResponseThread?
-            try {
-
-                serviceSocket = ServerSocket(8000)
-                //println("CommandService WebServerThread started listening ip ${httpServerSocket!!.localSocketAddress} on port ${httpServerSocket!!.localPort}")
-                ipAddress = findIPAddress(activity)
-                port = serviceSocket!!.localPort.toString()
-                println("CommandService WebServerThread started listening ip $ipAddress on port ${serviceSocket!!.localPort}")
-                while (isServiceSunning) {
-                    socket = serviceSocket!!.accept()
-                    responseThread = ResponseThread(socket)
-                    responseThread.start()
-                }
-            } catch (e: Exception) {
-                println("CommandService Exception ${e.message}")
-                e.printStackTrace()
-            }
-        })
-        serviceThread.start()
-    }
-
-    private inner class ResponseThread(var clientSocket: Socket) : Thread() {
-        @RequiresApi(Build.VERSION_CODES.O)
-        override fun run() {
-            try {
-                BufferedReader(InputStreamReader(clientSocket.getInputStream())).use { bufferedReader ->
-                    clientSocket.getOutputStream().use { outputStream ->
-                        val input = bufferedReader.readLine()
-                        println("CommandService ResponseThread received input $input")
-                        val uri = input.toUri()
-                        val parameters = uri.queryParameterNames.associateWith { uri.getQueryParameters(it) }
-                        val command = parameters["command"]?.firstOrNull()?.replace("HTTP/1.1", "")?.replace(" ", "")
-                        val requestMediaId = parameters["mediaId"]?.firstOrNull()?.replace("HTTP/1.1", "")?.replace(" ", "")
-                        val position = parameters["position"]?.firstOrNull()?.replace("HTTP/1.1", "")?.replace(" ", "")
-
-                        println("CommandService ResponseThread received uri parameters $command")
+        ipAddress = findIPAddress(activity)
+        val selectorManager = SelectorManager(Dispatchers.IO)
+        serviceSocket = aSocket(selectorManager).tcp().bind(ipAddress ?: "127.0.0.1", 8000)
+        println("CommandService is listening at ${serviceSocket?.localAddress}")
+        while (isServiceSunning) {
+            val socket = serviceSocket?.accept()
+            println("CommandService Accepted $socket")
+            CoroutineScope(Dispatchers.IO).launch {
+                val receiveChannel = socket?.openReadChannel()
+                val sendChannel = socket?.openWriteChannel(autoFlush = true)
+                sendChannel?.writeStringUtf8("CommandService Hello Please enter your name\n")
+                try {
+                    while (isServiceSunning) {
+                        val receivedInput = receiveChannel?.readUTF8Line()
+                        println("CommandService received input $receivedInput")
+                        val parameters = receivedInput?.split("|")
+                        println("CommandService received parameters $parameters")
+                        val command = parameters?.getOrNull(0)
+                        val requestMediaId = parameters?.getOrNull(1)
+                        val position = parameters?.getOrNull(2)
                         if (command != null) {
-                            println("CommandService ResponseThread received input process $input")
                             if (command == commandLoad) {
                                 if (requestMediaId?.isNotEmpty() == true) {
-                                    println("CommandService ResponseThread received play mediaId $requestMediaId position")
-
                                     onCommandLoad(requestMediaId.toString(), position?.toFloat() ?: 0f)
-
-                                    outputStream.write("HTTP/1.1 200 OK\r\n".toByteArray())
-                                    outputStream.write("Server: Apache/0.8.4\r\n".toByteArray())
-                                    outputStream.write("\r\n".toByteArray())
-
+                                    println("CommandService received play mediaId $requestMediaId position")
                                 }
                             }
                             if (command == commandPlay) {
                                 onCommandPlay()
-
-                                outputStream.write("HTTP/1.1 200 OK\r\n".toByteArray())
-                                outputStream.write("Server: Apache/0.8.4\r\n".toByteArray())
-                                outputStream.write("\r\n".toByteArray())
+                                println("CommandService received play")
                             }
                             if (command == commandPause) {
                                 onCommandPause()
-
-                                outputStream.write("HTTP/1.1 200 OK\r\n".toByteArray())
-                                outputStream.write("Server: Apache/0.8.4\r\n".toByteArray())
-                                outputStream.write("\r\n".toByteArray())
+                                println("CommandService received pause")
                             }
+
                         }
+
+                        //sendChannel?.writeStringUtf8("Hello, $name!\n")
                     }
+                } catch (e: Throwable) {
+                    println("CommandService Socket closed ${e.message}")
+                    isServiceSunning = false
+                    socket?.close()
                 }
-            } catch (e: Exception) {
-                println("CommandService ResponseThread Exception ${e.message}")
             }
         }
     }
@@ -127,12 +103,6 @@ class CommandService(
     fun ipAddress(): String? = ipAddress
     @Synchronized
     fun isServiceSunning(): Boolean = isServiceSunning
-    @Synchronized
-    fun baseUrl(): String? = "http://$ipAddress:$port"
-    @Synchronized
-    fun commandPlayUrl(): String = "${baseUrl()}/$commandLoad"
-    @Synchronized
-    fun commandPauseUrl(): String = "${baseUrl()}/$commandPause"
     @Synchronized
     fun mediaId(): String = mediaId
 
@@ -156,7 +126,7 @@ class CommandService(
     }
 
     companion object {
-        private var serviceSocket: ServerSocket? = null
+        private var serviceSocket: io.ktor.network.sockets.ServerSocket? = null
         private var isServiceSunning = false
         private var ipAddress: String? = null
         private var port: String? = null
