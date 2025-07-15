@@ -46,65 +46,65 @@ import io.ktor.server.plugins.calllogging.CallLogging
 import it.fast4x.riplaylink.appContext
 import kotlinx.coroutines.runBlocking
 
-fun Application.module() {
-    install(CallLogging)
+//fun Application.module() {
+//    install(CallLogging)
+//
+//    monitor.subscribe(ApplicationStarted) {
+//        println("CommandServiceWeb ApplicationStarted")
+//    }
+//
+//    monitor.subscribe(ApplicationStopped) {
+//        println("CommandServiceWeb ApplicationStopped")
+//    }
+//
+//    routing {
+//        println("CommandServiceWeb routing /")
+//        get("/") {
+//            println("CommandServiceWeb get /")
+//            call.respondText("CommandServiceWeb Hello, world from Module in ${Build.MODEL}!")
+//        }
+//    }
+//}
 
-    monitor.subscribe(ApplicationStarted) {
-        println("CommandServiceWeb ApplicationStarted")
-    }
-
-    monitor.subscribe(ApplicationStopped) {
-        println("CommandServiceWeb ApplicationStopped")
-    }
-
-    routing {
-        println("CommandServiceWeb routing /")
-        get("/") {
-            println("CommandServiceWeb get /")
-            call.respondText("CommandServiceWeb Hello, world from Module in ${Build.MODEL}!")
-        }
-    }
-}
-
-fun ApplicationEngine.Configuration.envConfig() {
-
-    connector {
-        host = "0.0.0.0"
-        port = 13456
-    }
-    connector {
-        host = "0.0.0.0"
-        port = 9090
-    }
-}
-
-fun ApplicationEngine.Configuration.envConfigWithSSL() {
-
-    println("CommandServiceWeb ApplicationEngine.Configuration envConfig")
-
-    connector {
-        port = 8000
-    }
-
-        val keyStoreFile = File("${appContext().externalCacheDir?.absolutePath}/build/keystore.jks")
-        val keyStore = buildKeyStore {
-            certificate("sampleAlias") {
-                password = "foobar"
-                domains = listOf("127.0.0.1", "0.0.0.0", "localhost")
-            }
-        }
-        keyStore.saveToFile(keyStoreFile, "123456")
-
-        sslConnector(
-            keyStore = keyStore,
-            keyAlias = "sampleAlias",
-            keyStorePassword = { "123456".toCharArray() },
-            privateKeyPassword = { "foobar".toCharArray() }
-        ) {
-            port = 8443
-            keyStorePath = keyStoreFile
-        }
-}
+//fun ApplicationEngine.Configuration.envConfig() {
+//
+//    connector {
+//        host = "0.0.0.0"
+//        port = 13456
+//    }
+//    connector {
+//        host = "0.0.0.0"
+//        port = 9090
+//    }
+//}
+//
+//fun ApplicationEngine.Configuration.envConfigWithSSL() {
+//
+//    println("CommandServiceWeb ApplicationEngine.Configuration envConfig")
+//
+//    connector {
+//        port = 8000
+//    }
+//
+//        val keyStoreFile = File("${appContext().externalCacheDir?.absolutePath}/build/keystore.jks")
+//        val keyStore = buildKeyStore {
+//            certificate("riPlayAlias") {
+//                password = "biPwd1@"
+//                domains = listOf("127.0.0.1", "0.0.0.0", "localhost")
+//            }
+//        }
+//        keyStore.saveToFile(keyStoreFile, "123456")
+//
+//        sslConnector(
+//            keyStore = keyStore,
+//            keyAlias = "riPlayAlias",
+//            keyStorePassword = { "wo0567#".toCharArray() },
+//            privateKeyPassword = { "biPwd1@".toCharArray() }
+//        ) {
+//            port = 8443
+//            keyStorePath = keyStoreFile
+//        }
+//}
 
 class CommandServiceWeb(
     private val activity: Activity,
@@ -113,34 +113,16 @@ class CommandServiceWeb(
     onCommandPause: () -> Unit
 ) {
 
-    private val logger = LoggerFactory.getLogger(CommandServiceWeb::class.java)
-
-
-// Not work
-//    private val server by lazy {
-//        embeddedServer(Netty, applicationEnvironment { log = logger }, {
-//            ApplicationEngine.Configuration().envConfig()
-//        }, module = Application::module)
-//    }
-
-// Not work
-//    val appProperties = serverConfig {
-//        module { module() }
-//        applicationEnvironment{ log = logger }
-//    }
-//    private val server by lazy {
-//        embeddedServer(Netty, appProperties) {
-//            ApplicationEngine.Configuration().envConfig()
-//        }
-//    }
-
     private val server by lazy {
         embeddedServer(Netty, configure = {
-            connectors.add(EngineConnectorBuilder().apply {
-                //host = "127.0.0.1"
-                port = 8080
-            })
 
+            // Extra connectors
+//            connectors.add(EngineConnectorBuilder().apply {
+//                //host = "127.0.0.1"
+//                port = 8080
+//            })
+
+            //envConfigWithoutSSL()
             envConfigWithSSL()
             connectionGroupSize = 2
             workerGroupSize = 5
@@ -186,6 +168,65 @@ class CommandServiceWeb(
         isServiceSunning = false
     }
 
+    fun Application.module() {
+        install(CallLogging)
+
+        monitor.subscribe(ApplicationStarted) {
+            println("CommandServiceWeb ApplicationStarted")
+        }
+
+        monitor.subscribe(ApplicationStopped) {
+            println("CommandServiceWeb ApplicationStopped")
+        }
+
+        routing {
+            println("CommandServiceWeb routing /")
+            get("/") {
+                println("CommandServiceWeb get /")
+                call.respondText("CommandServiceWeb Hello, world from Module in ${Build.MODEL}!")
+            }
+        }
+    }
+
+    fun ApplicationEngine.Configuration.envConfigWithoutSSL() {
+
+        connector {
+            host = "0.0.0.0"
+            port = 13456
+        }
+        connector {
+            host = "0.0.0.0"
+            port = 9090
+        }
+    }
+
+    fun ApplicationEngine.Configuration.envConfigWithSSL() {
+
+        println("CommandServiceWeb ApplicationEngine.Configuration envConfig")
+
+        connector {
+            port = 8000
+        }
+
+        val keyStoreFile = File("${appContext().externalCacheDir?.absolutePath}/build/keystore.jks")
+        val keyStore = buildKeyStore {
+            certificate("riPlayAlias") {
+                password = "biPwd1@"
+                domains = listOf("127.0.0.1", "0.0.0.0", "localhost")
+            }
+        }
+        keyStore.saveToFile(keyStoreFile, "123456")
+
+        sslConnector(
+            keyStore = keyStore,
+            keyAlias = "riPlayAlias",
+            keyStorePassword = { "wo0567#".toCharArray() },
+            privateKeyPassword = { "biPwd1@".toCharArray() }
+        ) {
+            port = 8443
+            keyStorePath = keyStoreFile
+        }
+    }
 
     fun start() {
 
