@@ -39,6 +39,7 @@ import it.fast4x.riplaylink.R
 import it.fast4x.riplaylink.getLastYTVideoId
 import it.fast4x.riplaylink.getLastYTVideoSeconds
 import it.fast4x.riplaylink.service.CommandService
+import it.fast4x.riplaylink.service.CommandServiceWeb
 import it.fast4x.riplaylink.ui.customui.CustomDefaultPlayerUiController
 import it.fast4x.riplaylink.utils.isLandscape
 import it.fast4x.riplaylink.utils.lastVideoIdKey
@@ -65,7 +66,7 @@ fun Player(
     var lastYTVideoId by rememberPreference(key = lastVideoIdKey, defaultValue = "")
     var lastYTVideoSeconds by rememberPreference(key = lastVideoSecondsKey, defaultValue = 0f)
 
-    val commandService = remember { CommandService(
+    val commandService = remember { CommandServiceWeb(
         context as MainActivity,
         onCommandLoad = { id, position ->
             println("CommandService onCommandPlay $id $position")

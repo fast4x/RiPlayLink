@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import it.fast4x.riplaylink.service.CommandServiceWeb
 import it.fast4x.riplaylink.service.registerNsdService
 import it.fast4x.riplaylink.ui.Player
 import it.fast4x.riplaylink.ui.theme.RiPlayLinkTheme

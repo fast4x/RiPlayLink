@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "it.fast4x.riplaylink"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -37,6 +37,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging{
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "META-INF/io.netty.versions.properties"
+        }
+    }
 }
 
 dependencies {
@@ -56,6 +63,12 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.okhttp)
     implementation(libs.ktor.network)
+    implementation(libs.ktor.network.tls.certificates)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.call.logging)
+    implementation(libs.logback.classic)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
