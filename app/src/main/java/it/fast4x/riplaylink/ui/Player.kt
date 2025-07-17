@@ -5,14 +5,14 @@ import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,7 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
@@ -36,10 +38,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFram
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import it.fast4x.riplaylink.MainActivity
 import it.fast4x.riplaylink.R
-import it.fast4x.riplaylink.getLastYTVideoId
-import it.fast4x.riplaylink.getLastYTVideoSeconds
-import it.fast4x.riplaylink.service.CommandService
-import it.fast4x.riplaylink.service.CommandServiceWeb
+import it.fast4x.riplaylink.service.LinkServiceWeb
 import it.fast4x.riplaylink.ui.customui.CustomDefaultPlayerUiController
 import it.fast4x.riplaylink.utils.isLandscape
 import it.fast4x.riplaylink.utils.lastVideoIdKey
@@ -66,7 +65,7 @@ fun Player(
     var lastYTVideoId by rememberPreference(key = lastVideoIdKey, defaultValue = "")
     var lastYTVideoSeconds by rememberPreference(key = lastVideoSecondsKey, defaultValue = 0f)
 
-    val commandService = remember { CommandServiceWeb(
+    val linkService = remember { LinkServiceWeb(
         context as MainActivity,
         onCommandLoad = { id, position ->
             println("CommandService onCommandPlay $id $position")
@@ -83,15 +82,15 @@ fun Player(
     ) }
 
     LaunchedEffect(Unit) {
-        commandService.start()
+        linkService.start()
     }
     
 
-    var showControls by remember { mutableStateOf(true) }
-    LaunchedEffect(showControls) {
-        if (showControls) {
-            delay(5000)
-            showControls = false
+    var showPanel by remember { mutableStateOf(true) }
+    LaunchedEffect(showPanel) {
+        if (showPanel) {
+            delay(10000)
+            showPanel = false
         }
     }
 
@@ -105,19 +104,40 @@ fun Player(
             modifier = Modifier
                 .zIndex(1f)
                 .align(Alignment.Center),
-            visible = showControls && isLandscape,
+            visible = (showPanel || playerState.value != PlayerConstants.PlayerState.PLAYING),
             enter = fadeIn(),
             exit = fadeOut()
         ) {
             Box(
                 modifier = Modifier
-                    .background(Color.Gray.copy(alpha = .4f), RoundedCornerShape(12.dp))
-                    .fillMaxWidth(0.9f)
-                    .fillMaxHeight(0.8f)
+                    .background(Color.Black)
+                    .fillMaxSize()
+//                    .fillMaxWidth(0.9f)
+//                    .fillMaxHeight(0.8f)
             ) {
-                //TODO Implement controls
-                //controlsContent(Modifier.padding(top = 20.dp))
-                Text(text = commandService.ipAddress().toString())
+
+                Text(
+                    text = linkService.ipAddress()?.let { "Address:$it" } ?: "",
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 5.dp)
+                )
+                Text(
+                    text = "RiPlay Link Device 1",
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(top = 5.dp)
+                )
+                Image(
+                    painter = painterResource(R.drawable.cast_connected),
+                    contentDescription = "Link Connected",
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 5.dp, end = 5.dp)
+                        .size(36.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
             }
         }
 
@@ -169,7 +189,7 @@ fun Player(
                                 onlinePlayerView,
                                 youTubePlayer,
                                 onTap = {
-                                    showControls = !showControls
+                                    showPanel = !showPanel
                                 }
                             )
                         customUiController.showUi(false) // disable all default controls and buttons
@@ -184,13 +204,14 @@ fun Player(
                         customUiController.showFullscreenButton(false)
                         onlinePlayerView.setCustomPlayerUi(customUiController.rootView)
 
-                        if (playerState.value == PlayerConstants.PlayerState.UNSTARTED
-                            || playerState.value != PlayerConstants.PlayerState.BUFFERING
-                        )
-                            youTubePlayer.loadVideo(
-                                mediaId,
-                                if (mediaId == getLastYTVideoId()) getLastYTVideoSeconds() else 0f
-                            )
+                        // not required to load by default
+//                        if (playerState.value == PlayerConstants.PlayerState.UNSTARTED
+//                            || playerState.value != PlayerConstants.PlayerState.BUFFERING
+//                        )
+//                            youTubePlayer.loadVideo(
+//                                mediaId,
+//                                if (mediaId == getLastYTVideoId()) getLastYTVideoSeconds() else 0f
+//                            )
 
                         //youTubePlayer.cueVideo(mediaId, 0f)
 

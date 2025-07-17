@@ -51,7 +51,7 @@ fun registerNsdService(unRegister: Boolean = false) {
         // with other services advertised on the same network.
         serviceName = "RiPlayLinkApp"
         serviceType = "_RiPlayLinkApp._tcp."
-        port = 8000
+        port = 18443
     }
 
 // Register the service for discovery
