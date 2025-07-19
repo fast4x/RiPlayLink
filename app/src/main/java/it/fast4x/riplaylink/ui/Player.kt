@@ -40,6 +40,8 @@ import it.fast4x.riplaylink.MainActivity
 import it.fast4x.riplaylink.R
 import it.fast4x.riplaylink.service.LinkServiceWeb
 import it.fast4x.riplaylink.ui.customui.CustomDefaultPlayerUiController
+import it.fast4x.riplaylink.utils.DeviceInfo
+import it.fast4x.riplaylink.utils.getDeviceInfo
 import it.fast4x.riplaylink.utils.isLandscape
 import it.fast4x.riplaylink.utils.lastVideoIdKey
 import it.fast4x.riplaylink.utils.lastVideoSecondsKey
@@ -81,8 +83,10 @@ fun Player(
         }
     ) }
 
+    var deviceInfo: DeviceInfo? by remember { mutableStateOf(null) }
     LaunchedEffect(Unit) {
         linkService.start()
+        deviceInfo = getDeviceInfo()
     }
     
 
@@ -117,13 +121,21 @@ fun Player(
             ) {
 
                 Text(
-                    text = linkService.ipAddress()?.let { "Address:$it" } ?: "",
+                    text = deviceInfo?.let {
+                        "Device:${it.deviceBrand} ${it.deviceModel} (${it.deviceName})"
+                    } ?: "",
                     modifier = Modifier
-                        .align(Alignment.TopCenter)
+                        .align(Alignment.TopStart)
                         .padding(top = 5.dp)
                 )
                 Text(
-                    text = "RiPlay Link Device 1",
+                    text = linkService.ipAddress()?.let { "Address:$it" } ?: "",
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(top = 30.dp)
+                )
+                Text(
+                    text = "RiPlay Link",
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     modifier = Modifier
                         .align(Alignment.Center)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import it.fast4x.riplaylink.appContext
+import it.fast4x.riplaylink.utils.getDeviceInfo
 import timber.log.Timber
 import java.net.Socket
 import java.net.UnknownHostException
@@ -19,6 +20,8 @@ fun initializeNsd(): NsdManager {
 fun registerNsdService(unRegister: Boolean = false) {
 
     val nsdManager = initializeNsd()
+
+    val deviceInfo = getDeviceInfo()
 
     val registrationListener = object : NsdManager.RegistrationListener {
         override fun onServiceRegistered(nsdServiceInfo: NsdServiceInfo) {
@@ -49,9 +52,10 @@ fun registerNsdService(unRegister: Boolean = false) {
     val serviceInfo = NsdServiceInfo().apply {
         // The name is subject to change based on conflicts
         // with other services advertised on the same network.
-        serviceName = "RiPlayLinkApp"
+        serviceName = "${deviceInfo?.deviceBrand} ${deviceInfo?.deviceModel} (${deviceInfo?.deviceName})"
         serviceType = "_RiPlayLinkApp._tcp."
         port = 18443
+
     }
 
 // Register the service for discovery
