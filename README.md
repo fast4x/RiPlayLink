@@ -1,7 +1,7 @@
 # RiPlayLink
 Multiplatform RiPlay cast addon
 
-It is used together with [RiPlay](https://github.com/fast4x/RiPlay) and allows you to cast audio/video on an Android TV or on another Android device present on the same network.
+It is used together with [RiPlay](https://github.com/fast4x/RiPlay) and allows you to cast audio/video on an Android TV or on another device present on the same network.
 
 Work in progress...
 
