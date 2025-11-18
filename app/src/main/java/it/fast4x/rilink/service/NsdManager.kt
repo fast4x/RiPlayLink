@@ -1,10 +1,10 @@
-package it.fast4x.riplaylink.service
+package it.fast4x.rilink.service
 
 import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
-import it.fast4x.riplaylink.appContext
-import it.fast4x.riplaylink.utils.getDeviceInfo
+import it.fast4x.rilink.appContext
+import it.fast4x.rilink.utils.getDeviceInfo
 import timber.log.Timber
 import java.net.Socket
 import java.net.UnknownHostException

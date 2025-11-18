@@ -1,4 +1,4 @@
-package it.fast4x.riplaylink.ui.theme
+package it.fast4x.rilink.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

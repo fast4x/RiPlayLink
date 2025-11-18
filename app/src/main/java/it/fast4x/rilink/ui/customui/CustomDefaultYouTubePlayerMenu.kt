@@ -1,4 +1,4 @@
-package it.fast4x.riplaylink.ui.customui
+package it.fast4x.rilink.ui.customui
 
 
 import android.content.Context

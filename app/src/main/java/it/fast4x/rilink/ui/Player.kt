@@ -1,4 +1,4 @@
-package it.fast4x.riplaylink.ui
+package it.fast4x.rilink.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -36,16 +36,16 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-import it.fast4x.riplaylink.MainActivity
-import it.fast4x.riplaylink.R
-import it.fast4x.riplaylink.service.LinkServiceWeb
-import it.fast4x.riplaylink.ui.customui.CustomDefaultPlayerUiController
-import it.fast4x.riplaylink.utils.DeviceInfo
-import it.fast4x.riplaylink.utils.getDeviceInfo
-import it.fast4x.riplaylink.utils.isLandscape
-import it.fast4x.riplaylink.utils.lastVideoIdKey
-import it.fast4x.riplaylink.utils.lastVideoSecondsKey
-import it.fast4x.riplaylink.utils.rememberPreference
+import it.fast4x.rilink.MainActivity
+import it.fast4x.rilink.R
+import it.fast4x.rilink.service.LinkServiceWeb
+import it.fast4x.rilink.ui.customui.CustomDefaultPlayerUiController
+import it.fast4x.rilink.utils.DeviceInfo
+import it.fast4x.rilink.utils.getDeviceInfo
+import it.fast4x.rilink.utils.isLandscape
+import it.fast4x.rilink.utils.lastVideoIdKey
+import it.fast4x.rilink.utils.lastVideoSecondsKey
+import it.fast4x.rilink.utils.rememberPreference
 import kotlinx.coroutines.delay
 
 @Composable
@@ -135,7 +135,7 @@ fun Player(
                         .padding(top = 30.dp)
                 )
                 Text(
-                    text = "RiPlay Link",
+                    text = "RiLink",
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     modifier = Modifier
                         .align(Alignment.Center)

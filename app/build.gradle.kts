@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "it.fast4x.riplaylink"
+    namespace = "it.fast4x.rilink"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "it.fast4x.riplaylink"
+        applicationId = "it.fast4x.rilink"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

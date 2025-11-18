@@ -1,4 +1,4 @@
-package it.fast4x.riplaylink.utils
+package it.fast4x.rilink.utils
 
 import android.content.Context
 import android.content.SharedPreferences

@@ -1,4 +1,4 @@
-package it.fast4x.riplaylink
+package it.fast4x.rilink
 
 import android.os.Bundle
 import android.view.WindowManager
@@ -8,9 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import it.fast4x.riplaylink.service.registerNsdService
-import it.fast4x.riplaylink.ui.Player
-import it.fast4x.riplaylink.ui.theme.RiPlayLinkTheme
+import it.fast4x.rilink.service.registerNsdService
+import it.fast4x.rilink.ui.Player
+import it.fast4x.rilink.ui.theme.RiPlayLinkTheme
 
 class MainActivity : AppCompatActivity() {
 

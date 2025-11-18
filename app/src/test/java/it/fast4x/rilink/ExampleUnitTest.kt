@@ -1,4 +1,4 @@
-package it.fast4x.riplaylink
+package it.fast4x.rilink
 
 import org.junit.Test
 

@@ -1,10 +1,10 @@
-package it.fast4x.riplaylink
+package it.fast4x.rilink
 
 import android.app.Application
-import it.fast4x.riplaylink.utils.CaptureCrash
-import it.fast4x.riplaylink.utils.FileLoggingTree
-import it.fast4x.riplaylink.utils.logDebugEnabledKey
-import it.fast4x.riplaylink.utils.preferences
+import it.fast4x.rilink.utils.CaptureCrash
+import it.fast4x.rilink.utils.FileLoggingTree
+import it.fast4x.rilink.utils.logDebugEnabledKey
+import it.fast4x.rilink.utils.preferences
 import timber.log.Timber
 import java.io.File
 
